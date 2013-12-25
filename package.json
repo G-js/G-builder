@@ -1,7 +1,7 @@
 {
-  "name": "grunt-g-builder",
+  "name": "g-builder",
   "description": "static file builder set for g.js",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "homepage": "https://github.com/G-js/grunt-g-builder",
   "author": {
     "name": "j1anb1n",
@@ -30,7 +30,10 @@
     "uglify-js": "~2.3.6",
     "async": "*",
     "gaze": "*",
-    "nedb": "~0.8.12"
+    "nedb": "~0.8.12",
+    "underscore": "~1.5.2",
+    "minimatch": "~0.2.14",
+    "jshint": "~2.3.0"
   },
   "peerDependencies": {
     "grunt": "~0.4.0"
