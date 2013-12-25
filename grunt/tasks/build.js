@@ -1,4 +1,4 @@
-var Builder = require('../lib/build');
+var Builder = require('../../lib/build');
 var _       = require('underscore');
 
 module.exports = function (grunt) {
