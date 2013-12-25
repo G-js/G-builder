@@ -26,6 +26,11 @@ module.exports = function (grunt) {
             total = files.length;
 
             builder.build(function (err, report) {
+                if (err) {
+                    grunt.log.error(err);
+                    return;
+                }
+
                 var failCount = Object.keys(report.error).length;
 
                 grunt.file.write('reports/' + report.token, JSON.stringify({
@@ -42,7 +47,7 @@ module.exports = function (grunt) {
                         grunt.log.writeln(key);
                         grunt.log.writelns(report.error[key]);
                     });
-                    grunt.log.writeln('');
+
                     done(false);
                 } else {
                     done(true);
