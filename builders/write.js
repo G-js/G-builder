@@ -2,15 +2,26 @@ var fs = require('fs');
 var path = require('path');
 
 module.exports = function (fileInfo, callback) {
-    var dest = this.config.dest + fileInfo.id;
-
-    if (!fs.existsSync(path.dirname(dest))) {
-        mkdir(path.dirname(dest));
+    var config = this.config;
+    if (!fileInfo.output || !Object.keys(fileInfo.output).length) {
+        fileInfo.output = {};
+        fileInfo.output[fileInfo.id] = fileInfo.content;
     }
 
-    fs.writeFile(dest, fileInfo.content, function (err) {
-        callback(err, fileInfo);
-    });
+    try {
+        Object.keys(fileInfo.output).forEach(function (file) {
+            var dest = config.dest + file;
+
+            if (!fs.existsSync(path.dirname(dest))) {
+                mkdir(path.dirname(dest));
+            }
+
+            fs.writeFileSync(dest, fileInfo.output[file]);
+        });
+        callback(null, fileInfo);
+    } catch (ex) {
+        callback(ex, fileInfo);
+    }
 };
 
 function mkdir(filePath) {
