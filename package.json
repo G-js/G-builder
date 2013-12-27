@@ -1,23 +1,23 @@
 {
   "name": "g-builder",
-  "description": "static file builder set for g.js",
+  "description": "the builder for g.js",
   "version": "0.1.0",
-  "homepage": "https://github.com/G-js/grunt-g-builder",
+  "homepage": "https://github.com/G-js/G-builder",
   "author": {
     "name": "j1anb1n",
     "email": "chan.jianbin@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/G-js/grunt-g-builder.git"
+    "url": "https://github.com/G-js/G-builder.git"
   },
   "bugs": {
-    "url": "https://github.com/G-js/grunt-g-builder/issues"
+    "url": "https://github.com/G-js/G-builder/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/G-js/grunt-g-builder/blob/master/LICENSE"
+      "url": "https://github.com/G-js/G-builder/blob/master/LICENSE"
     }
   ],
   "main": "index.js",
@@ -35,10 +35,6 @@
     "minimatch": "~0.2.14",
     "jshint": "~2.3.0"
   },
-  "peerDependencies": {
-    "grunt": "~0.4.0"
-  },
   "keywords": [
-    "gruntplugin"
   ]
 }

@@ -27,13 +27,16 @@ function CssBuilder (fileInfo, callback) {
     }
 
     fileInfo.children = children;
+
+    fileInfo.output[fileInfo.id] = content;
+
     callback(null, fileInfo);
 }
 
 CssBuilder.minify = function (fileInfo, callback) {
     var cssmin = require('cssmin');
 
-    fileInfo.content = cssmin(fileInfo.content);
+    fileInfo.output[fileInfo.id] = cssmin(fileInfo.content);
     callback(null, fileInfo);
 };
 
@@ -67,7 +70,7 @@ CssBuilder.combine = function (fileInfo, callback) {
                 callback(err, fileInfo);
             }
 
-            fileInfo.content = contents.join('\n');
+            fileInfo.output[fileInfo.id] = contents.join('\n');
             fileInfo.children = children;
             callback(null, fileInfo);
         }

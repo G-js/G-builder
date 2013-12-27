@@ -3,7 +3,7 @@ var fs = require('fs');
 var REQUIRE_RE = /[^.]\s*require\s*\(\s*(["'])([^'"\s\)]+)\1\s*\)/g;
 
 function AMDBuilder (fileInfo, callback) {
-    fileInfo.content = transport(fileInfo.id, fileInfo.content);
+    fileInfo.output[fileInfo.id] = transport(fileInfo.id, fileInfo.content);
 
     callback(null, fileInfo);
 }
@@ -11,7 +11,7 @@ function AMDBuilder (fileInfo, callback) {
 AMDBuilder.combine = function (fileInfo, callback) {
     var config = this.config;
     fileInfo.children = fileInfo.content.split('\n').filter(function (file) {return !!file; });
-    fileInfo.content = fileInfo.children
+    fileInfo.output[fileInfo.id] = fileInfo.children
                         .map(function (child) {
                             return transport(child, fs.readFileSync(config.src + child));
                         })

@@ -5,7 +5,6 @@ module.exports = function (fileInfo, callback) {
     var config = this.config;
     if (!fileInfo.output || !Object.keys(fileInfo.output).length) {
         fileInfo.output = {};
-        fileInfo.output[fileInfo.id] = fileInfo.content;
     }
 
     try {
