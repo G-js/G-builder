@@ -1,0 +1,9 @@
+.bg-img {
+    background: url('../image/test1.png');
+}
+.bg-img-external {
+    background: url(http://www.example.com/);
+}
+.bg-img-about-blank {
+    background: url(about: blank);
+}

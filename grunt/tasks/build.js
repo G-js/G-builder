@@ -7,6 +7,7 @@ module.exports = function (grunt) {
         var config = _.extend({ input: [].slice.call(arguments) }, grunt.config());
         var builder = new Builder(config);
         var current = 1;
+        var token = grunt.option('token') || Date.now();
         var total;
 
         builder.on('start', function (file) {
@@ -26,26 +27,26 @@ module.exports = function (grunt) {
             total = files.length;
 
             builder.build(function (err, report) {
-                var failCount = Object.keys(report.error).length;
+                if (report) {
+                    grunt.file.write('reports/' + token, JSON.stringify({
+                        input: report.input,
+                        files: report.files,
+                        output: report.output,
+                        error: report.error
+                    }, null, 4));
 
-                grunt.file.write('reports/' + report.token, JSON.stringify({
-                    taskName: report.taskName,
-                    input: report.input,
-                    files: report.files,
-                    output: report.output,
-                    error: report.error
-                }, null, 4));
-
-                if (failCount) {
-                    grunt.log.writeln('Finish with %d Errors'.red, failCount);
-                    Object.keys(report.error).forEach(function (key) {
-                        grunt.log.writeln(key);
-                        grunt.log.writelns(report.error[key]);
-                    });
-                    grunt.log.writeln('');
-                    done(false);
+                    if (Object.keys(report.errors).length) {
+                        Object.keys(report.errors).forEach(function (file) {
+                            grunt.log.writeln(file);
+                            grunt.log.writelns(report.errors[file]);
+                        });
+                        done(false);
+                    } else {
+                        done(true);
+                    }
                 } else {
-                    done(true);
+                    grunt.log.error(err);
+                    done(false);
                 }
             });
         });

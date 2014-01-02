@@ -1,7 +1,26 @@
+var fs = require('fs');
+
 var REQUIRE_RE = /[^.]\s*require\s*\(\s*(["'])([^'"\s\)]+)\1\s*\)/g;
 
-module.exports = function (fileInfo, callback) {
-    var content = fileInfo.content;
+function AMDBuilder (fileInfo, callback) {
+    fileInfo.output[fileInfo.id] = transport(fileInfo.id, fileInfo.content);
+
+    callback(null, fileInfo);
+}
+
+AMDBuilder.combine = function (fileInfo, callback) {
+    var config = this.config;
+    fileInfo.children = fileInfo.content.split('\n').filter(function (file) {return !!file; });
+    fileInfo.output[fileInfo.id] = fileInfo.children
+                        .map(function (child) {
+                            return transport(child, fs.readFileSync(config.src + child));
+                        })
+                        .join('\n');
+
+    callback(null, fileInfo);
+};
+
+function transport (filename, content) {
     var match = [];
     var deps = [];
     REQUIRE_RE.lastIndex = 0;
@@ -11,7 +30,7 @@ module.exports = function (fileInfo, callback) {
     }
 
     deps = JSON.stringify(deps);
-    fileInfo.content = 'define("' + fileInfo.id + '", ' + deps + ', function (require, exports, module) {\n' + content + '\n})';
+    return 'define("' + filename + '", ' + deps + ', function (require, exports, module) {\n' + content + '\n})';
+}
 
-    callback(null, fileInfo);
-};
+module.exports = AMDBuilder;
