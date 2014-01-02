@@ -2,11 +2,11 @@
     "src": "./src/",
     "dest": "./build/",
     "builder": [
-        ["**/*.cmb.js", ["read", "combineAmdJS", "write"]],
-        ["**/*.cmb.css", ["read", "css#combine", "css", "write"]],
-        ["**/*.js", ["read", "jshint", "amd", "uglify", "write"]],
-        ["**/*.css", ["read", "css", "css#minify", "write"]],
-        ["**/*.png", ["copy"]],
+        ["**/*.cmb.js", ["fs#read", "amd#combine", "fs#write"]],
+        ["**/*.cmb.css", ["fs#read", "css#combine", "css", "fs#write"]],
+        ["**/*.js", ["fs#read", "jshint", "amd", "uglify", "fs#write"]],
+        ["**/*.css", ["fs#read", "css", "css#minify", "fs#write"]],
+        ["**/*.png", ["fs#copy"]],
         ["**/*", ["ignore"]]
     ],
     "jshint": {
