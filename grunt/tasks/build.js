@@ -32,7 +32,7 @@ module.exports = function (grunt) {
                         input: report.input,
                         files: report.files,
                         output: report.output,
-                        error: report.error
+                        errors: report.errors
                     }, null, 4));
 
                     if (Object.keys(report.errors).length) {
