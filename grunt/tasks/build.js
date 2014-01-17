@@ -29,7 +29,7 @@ module.exports = function (grunt) {
             builder.build(function (err, report) {
                 if (report) {
                     grunt.file.write('reports/' + token, JSON.stringify({
-                        input: report.input,
+                        input: config.input,
                         files: report.files,
                         output: report.output,
                         errors: report.errors

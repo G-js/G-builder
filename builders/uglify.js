@@ -6,7 +6,7 @@ module.exports = function (fileInfo, callback) {
     try {
         content = UglifyJS.minify(content, {fromString: true}).code;
     } catch (ex) {
-        return callback(new Error(ex.message + '[line:' + ex.line + ', column:' + ex.col + ']'));
+        return callback(new Error('[Uglifyjs]: ' + ex.message + '[line:' + ex.line + ', column:' + ex.col + ']'));
     }
 
     callback(null, fileInfo);
