@@ -1,5 +1,7 @@
 var fs = require('fs');
 var path = require('path');
+var mkdirp = require('mkdirp');
+var async = require('async');
 
 exports.read = function (fileInfo, callback) {
     fs.readFile(this.config.src + fileInfo.id, function (err, buffer) {
@@ -21,45 +23,45 @@ exports.copy = function (fileInfo, callback) {
             return callback(err);
         }
 
-        if (!fs.existsSync(path.dirname(dest))) {
-            mkdir(path.dirname(dest));
-        }
+        mkdirp(path.dirname(dest), function (err) {
+            if (err) {
+                return callback(err);
+            }
 
-        fs.writeFile(dest, buffer, function (err) {
-            fileInfo.output[fileInfo.id] = buffer;
-            callback(err, fileInfo);
+            fs.writeFile(dest, buffer, function (err) {
+                fileInfo.output[fileInfo.id] = buffer;
+                callback(err, fileInfo);
+            });
         });
     });
 };
 
 exports.write = function (fileInfo, callback) {
     var config = this.config;
+    var db = this.db;
     if (!fileInfo.output || !Object.keys(fileInfo.output).length) {
         fileInfo.output = {};
     }
 
-    try {
-        Object.keys(fileInfo.output).forEach(function (file) {
+    async.each(
+        Object.keys(fileInfo.output),
+        function (file, next) {
             var dest = config.dest + file;
 
-            if (!fs.existsSync(path.dirname(dest))) {
-                mkdir(path.dirname(dest));
-            }
-
-            fs.writeFileSync(dest, fileInfo.output[file]);
-        });
-        callback(null, fileInfo);
-    } catch (ex) {
-        callback(ex, fileInfo);
-    }
-};
-
-function mkdir(filePath) {
-    filePath.split(path.sep).reduce(function (parts, part) {
-        parts += part + path.sep;
-        if (!fs.existsSync(parts)) {
-            fs.mkdirSync(parts);
+            mkdirp(path.dirname(dest), function (err) {
+                if (err) {
+                    return next(err);
+                }
+                fs.writeFile(dest, fileInfo.output[file], function (err) {
+                    if (err) {
+                        return next(err);
+                    }
+                    db.update({filename: file}, {filename: file, last_update: Date.now()}, {upsert: true}, next);
+                });
+            });
+        },
+        function (err) {
+            callback(err, fileInfo);
         }
-        return parts;
-    }, '/');
-}
+    );
+};
