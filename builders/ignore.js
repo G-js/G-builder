@@ -1,3 +1,3 @@
-module.exports = function (fileInfo, callback) {
-    callback(null, fileInfo);
+module.exports = function (callback) {
+    callback(null);
 };

@@ -3,18 +3,20 @@ var path = require('path');
 var mkdirp = require('mkdirp');
 var async = require('async');
 
-exports.read = function (fileInfo, callback) {
+exports.read = function (callback) {
+    var fileInfo = this.file;
     fs.readFile(this.config.src + fileInfo.id, function (err, buffer) {
         if (err) {
             return callback(err);
         }
         fileInfo.content = buffer.toString();
 
-        callback(null, fileInfo);
+        callback(null);
     });
 };
 
-exports.copy = function (fileInfo, callback) {
+exports.copy = function (callback) {
+    var fileInfo = this.file;
     var src = this.config.src + fileInfo.id;
     var dest = this.config.dest + fileInfo.id;
 
@@ -30,13 +32,14 @@ exports.copy = function (fileInfo, callback) {
 
             fs.writeFile(dest, buffer, function (err) {
                 fileInfo.output[fileInfo.id] = buffer;
-                callback(err, fileInfo);
+                callback(err);
             });
         });
     });
 };
 
-exports.write = function (fileInfo, callback) {
+exports.write = function (callback) {
+    var fileInfo = this.file;
     var config = this.config;
     var db = this.db;
     if (!fileInfo.output || !Object.keys(fileInfo.output).length) {
@@ -61,7 +64,7 @@ exports.write = function (fileInfo, callback) {
             });
         },
         function (err) {
-            callback(err, fileInfo);
+            callback(err);
         }
     );
 };
