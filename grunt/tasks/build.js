@@ -28,7 +28,7 @@ module.exports = function (grunt) {
             grunt.log.writeln('Start Build: [%d] files...', total);
         });
 
-        builder.build(input, function (err, report) {
+        builder.build(input || [], {buildAllFile: !input.length, buildRelatedFiles: !!input.length}, function (err, report) {
             if (report) {
                 grunt.file.write('reports/' + token, JSON.stringify({
                     input: config.input,

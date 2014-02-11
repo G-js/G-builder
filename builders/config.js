@@ -1,5 +1,6 @@
-module.exports = function (fileInfo, callback) {
+module.exports = function (callback) {
     var config = this.config;
+    var fileInfo = this.file;
     var content = JSON.parse(fileInfo.content);
     var now = Date.now();
     var expire = config.expire || 86400 * 7 * 1000; // default to 1 week;
@@ -17,6 +18,6 @@ module.exports = function (fileInfo, callback) {
         fileInfo.output[fileInfo.id] = JSON.stringify(content);
         fileInfo.output[fileInfo.id.replace(/\.json$/, '.js')] = 'G.config(' + JSON.stringify(content) + ')';
 
-        callback(null, fileInfo);
+        callback(null);
     });
 };

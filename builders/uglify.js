@@ -1,6 +1,7 @@
 var UglifyJS = require('uglify-js');
 
-module.exports = function (fileInfo, callback) {
+module.exports = function (callback) {
+    var fileInfo = this.file;
     var content = fileInfo.content;
 
     try {
@@ -9,5 +10,5 @@ module.exports = function (fileInfo, callback) {
         return callback(new Error('[Uglifyjs]: ' + ex.message + '[line:' + ex.line + ', column:' + ex.col + ']'));
     }
 
-    callback(null, fileInfo);
+    callback(null);
 };

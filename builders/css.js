@@ -3,9 +3,10 @@ var async = require('async');
 var fs = require('fs');
 var URL_RE = /url\(('|")?(.*?)\1\)/g;
 
-function CssBuilder (fileInfo, callback) {
+function CssBuilder (callback) {
     var src = this.config.src;
-    var children = fileInfo.children || [];
+    var fileInfo = this.file;
+    var deps = fileInfo.deps || [];
     var content = fileInfo.content;
     var match = null;
     var url = '';
@@ -20,59 +21,61 @@ function CssBuilder (fileInfo, callback) {
             url.replace(/ /g, '') !== 'about:blank'
         ) {
             url = path.resolve(src, path.dirname(fileInfo.id), url).replace(src, '');
-            if (children.indexOf(url) === -1) {
-                children.push(url);
+            if (deps.indexOf(url) === -1) {
+                deps.push(url);
             }
         }
     }
 
-    fileInfo.children = children;
+    fileInfo.deps = deps;
 
     fileInfo.output[fileInfo.id] = content;
 
-    callback(null, fileInfo);
+    callback(null);
 }
 
-CssBuilder.minify = function (fileInfo, callback) {
+CssBuilder.minify = function (callback) {
     var cssmin = require('cssmin');
-
+    var fileInfo = this.file;
     fileInfo.output[fileInfo.id] = cssmin(fileInfo.content);
-    callback(null, fileInfo);
+
+    callback(null);
 };
 
-CssBuilder.combine = function (fileInfo, callback) {
+CssBuilder.combine = function (callback) {
     var src = this.config.src;
+    var fileInfo = this.file;
 
-    var children = fileInfo.content.split('\n')
-                            .filter(function (child) {
-                                return !!child;
+    var deps = fileInfo.content.split('\n')
+                            .filter(function (dep) {
+                                return !!dep;
                             })
-                            .map(function (child) {
-                                child = path.resolve(src, path.dirname(fileInfo.id), child)
+                            .map(function (dep) {
+                                dep = path.resolve(src, path.dirname(fileInfo.id), dep)
                                             .replace(src, '');
 
-                                return child;
+                                return dep;
                             });
 
     async.map(
-        children,
-        function (child, next) {
-            fs.readFile(src + child, function (err, content) {
+        deps,
+        function (dep, next) {
+            fs.readFile(src + dep, function (err, content) {
                 if (err) {
                     next(err);
                 } else {
-                    next(null, fixImgUrl(child, content.toString()));
+                    next(null, fixImgUrl(dep, content.toString()));
                 }
             });
         },
         function (err, contents) {
             if (err) {
-                callback(err, fileInfo);
+                callback(err);
             }
 
             fileInfo.output[fileInfo.id] = contents.join('\n');
-            fileInfo.children = children;
-            callback(null, fileInfo);
+            fileInfo.deps = deps;
+            callback(null);
         }
     );
 

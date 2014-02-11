@@ -1,10 +1,13 @@
 var jshint = require('jshint').JSHINT;
 var _ = require('underscore');
 
-module.exports = function (fileInfo, callback) {
-    var err = null, config = this.config.jshint;
+module.exports = function (callback) {
+    var fileInfo = this.file;
+    var config = this.config.jshint;
+    var err = null;
+
     if (config === 'ignore') {
-        return callback(err, fileInfo);
+        return callback(err);
     }
     config = _.extend({}, config);
 
@@ -19,5 +22,5 @@ module.exports = function (fileInfo, callback) {
                 .join('\n');
     }
 
-    callback(err, fileInfo);
+    callback(err);
 };

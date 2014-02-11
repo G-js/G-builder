@@ -1,0 +1,82 @@
+#!/usr/bin/env node
+var fs = require('fs');
+var path = require('path');
+var program = require('commander');
+var mkdirp = require('mkdirp');
+
+var pkg = require('../package.json');
+var Builder = require('../lib/build.js');
+
+var cwd = process.cwd();
+var builder = new Builder();
+
+if (fs.existsSync(cwd + '/Gbuild.js')) {
+    var initFn = require(cwd + '/Gbuild.js');
+    initFn(builder);
+}
+
+program
+    .version(pkg.version);
+
+program
+    .command('watch')
+    .action(function () {
+        builder.watch(function (watcher) {
+            console.log(watcher);
+        });
+    });
+
+program
+    .command('build [files]')
+    .option('-a, --all', 'build all files')
+    .option('-R, --relative', 'also build relative files')
+    .option('-r, --report <path>', 'path to write report file')
+    .action(function (files, config) {
+        var total = 0;
+        var current = 0;
+
+        files = files ? files.split(',') : [];
+
+        builder.on('start', function (files) {
+            total = files.length;
+            console.log('Start build: [%d] files', files.length);
+        });
+
+        builder.on('build', function (file) {
+            console.log('[%d / %d] %s', ++current, total, file);
+        });
+
+        builder.build(
+            files,
+            {
+                buildAllFiles: config.all,
+                buildRelatedFiles: config.relative
+            },
+            function (err, report) {
+                if (err) {
+                    console.log('ex', err.stack, err);
+                }
+
+                if (config.report) {
+                    mkdirp(path.dirname(config.report), function (err) {
+                        if (err) {
+                            throw err;
+                        }
+                        fs.writeFile(
+                            config.report,
+                            JSON.stringify({
+                                files: report.files,
+                                input: report.input,
+                                output: report.output,
+                                errors: report.errors
+                            }, null, 4)
+                        );
+                    });
+                }
+            }
+        );
+
+
+    });
+
+program.parse(process.argv);

@@ -2,7 +2,8 @@ var Parser = require('less').Parser;
 var _      = require('underscore');
 var path   = require('path');
 
-module.exports = function (fileInfo, callback) {
+module.exports = function (callback) {
+    var fileInfo = this.file;
     var src = this.config.src;
     var config = _.extend({
         silent: true,
@@ -18,7 +19,7 @@ module.exports = function (fileInfo, callback) {
 
     parser.parse(fileInfo.content, function (err, tree) {
         if (err) {
-            return callback(err, fileInfo);
+            return callback(err);
         }
 
         var imports = Object.keys(parser.imports.files)
@@ -26,15 +27,15 @@ module.exports = function (fileInfo, callback) {
                             return path.resolve(src, path.dirname(fileInfo.id), file).replace(src, '');
                         });
 
-        fileInfo.children = fileInfo.children.concat(imports);
+        fileInfo.deps = fileInfo.deps.concat(imports);
 
         try {
             fileInfo.output[fileInfo.id.replace(/\.less$/, '.css')] = tree.toCSS();
         } catch (ex) {
-            fileInfo.warn.push(ex);
-            return callback(null, fileInfo);
+            fileInfo.warns.push(ex);
+            return callback(null);
         }
 
-        callback(null, fileInfo);
+        callback(null);
     });
 };

@@ -1,14 +1,6 @@
 {
     "src": "./src/",
     "dest": "./build/",
-    "builder": [
-        ["**/*.cmb.js", ["fs#read", "amd#combine", "fs#write"]],
-        ["**/*.cmb.css", ["fs#read", "css#combine", "css", "fs#write"]],
-        ["**/*.js", ["fs#read", "jshint", "amd", "uglify", "fs#write"]],
-        ["**/*.css", ["fs#read", "css", "css#minify", "fs#write"]],
-        ["**/*.png", ["fs#copy"]],
-        ["**/*", ["ignore"]]
-    ],
     "jshint": {
         "predef":       ["G", "require", "module", "exports"],
         "indent":       4,
