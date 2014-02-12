@@ -10,6 +10,18 @@ module.exports = function (grunt) {
         var token = grunt.option('token') || Date.now();
         var total;
 
+        config.builder.forEach(function (setting) {
+            var stream = builder.registerBuilder(setting[0]);
+
+            setting[1].forEach(function (fn) {
+                fn = fn.split('#');
+
+                fn = fn[1] ? builder.builder[fn[0]][fn[1]] : builder.builder[fn[0]];
+
+                stream.pipe(fn);
+            });
+        });
+
         builder.on('build', function (file) {
             grunt.log.write('Build:[%d/%d]: %s', current, total, file);
         });
@@ -28,7 +40,7 @@ module.exports = function (grunt) {
             grunt.log.writeln('Start Build: [%d] files...', total);
         });
 
-        builder.build(input || [], {buildAllFile: !input.length, buildRelatedFiles: !!input.length}, function (err, report) {
+        builder.build(input, {buildAllFiles: !input.length, buildRelatedFiles: !!input.length}, function (err, report) {
             if (report) {
                 grunt.file.write('reports/' + token, JSON.stringify({
                     input: config.input,
