@@ -27,6 +27,19 @@ program
     });
 
 program
+    .command('index')
+    .action(function () {
+        builder.getIndex(function (err, index) {
+            if (err) {
+                console.log(err);
+                return process.exit(1);
+            }
+
+            console.log(JSON.stringify(index, null, 4));
+        });
+    });
+
+program
     .command('build [files]')
     .option('-a, --all', 'build all files')
     .option('-R, --relative', 'also build relative files')
@@ -39,7 +52,7 @@ program
 
         builder.on('start', function (files) {
             total = files.length;
-            console.log('Start build: [%d] files', files.length);
+            console.log('Start building: %d files', files.length);
         });
 
         builder.on('build', function (file) {
@@ -53,9 +66,15 @@ program
                 buildRelatedFiles: config.relative
             },
             function (err, report) {
+                var hasError = err || Object.keys(report.errors).length;
                 if (err) {
-                    console.log('ex', err.stack, err);
+                    console.log(err.message);
                 }
+
+                Object.keys(report.errors).forEach(function (file) {
+                    console.log('Error :%s', file);
+                    console.log(report.errors[file]);
+                });
 
                 if (config.report) {
                     mkdirp(path.dirname(config.report), function (err) {
@@ -73,10 +92,12 @@ program
                         );
                     });
                 }
+
+                if (hasError) {
+                    process.exit(1);
+                }
             }
         );
-
-
     });
 
 program.parse(process.argv);

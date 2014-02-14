@@ -59,7 +59,15 @@ exports.write = function (callback) {
                     if (err) {
                         return next(err);
                     }
-                    db.update({filename: file}, {filename: file, last_update: Date.now()}, {upsert: true}, next);
+                    db.update(
+                        { filename: file },
+                        {
+                            filename: file,
+                            last_update: parseInt(Date.now() / 1000)
+                        },
+                        {upsert: true},
+                        next
+                    );
                 });
             });
         },
