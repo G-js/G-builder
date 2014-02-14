@@ -9,8 +9,8 @@ module.exports = function (callback) {
     var db = this.db;
 
     var content = JSON.parse(fileInfo.content);
-    var now = Date.now();
-    var expire = config.expire || 86400 * 7 * 1000; // default to 1 week;
+    var now = Date.now() / 1000;
+    var expire = config.expire || 86400 * 7; // default to 1 week;
     var line = now - (now % expire);
 
     fileInfo.deps = content.mergeConfig ?
