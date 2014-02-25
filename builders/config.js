@@ -42,7 +42,7 @@ module.exports = function (callback) {
                 try {
                     content = JSON.parse(buffer.toString());
                 } catch (ex) {
-                    return next(err);
+                    return next(ex);
                 }
 
                 next(null, content);
