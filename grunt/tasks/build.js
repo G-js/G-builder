@@ -26,7 +26,7 @@ module.exports = function (grunt) {
             grunt.log.write('Build:[%d/%d]: %s', current, total, file);
         });
 
-        builder.on('error', function () {
+        builder.on('fail', function () {
             grunt.log.writeln(' ERR'.red);
         });
 
@@ -51,7 +51,6 @@ module.exports = function (grunt) {
 
                 if (Object.keys(report.errors).length) {
                     Object.keys(report.errors).forEach(function (file) {
-                        grunt.log.writeln(file);
                         grunt.log.writelns(report.errors[file]);
                     });
                     done(false);
