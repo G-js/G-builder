@@ -17,7 +17,7 @@ module.exports = function (callback) {
                     if (!err) {
                         return '';
                     }
-                    return i + '. ' + err.reason + '[' + err.line + ':' + err.character + '][' + err.code + ']';
+                    return i + '. ' + err.reason + '[line: ' + err.line + ', char:' + err.character + '][ECODE: ' + err.code + ']';
                 })
                 .join('\n');
     }

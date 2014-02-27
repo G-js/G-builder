@@ -22,7 +22,10 @@ program
     .command('watch')
     .action(function () {
         builder.watch(function (watcher) {
-            console.log(watcher);
+            console.log('watching...');
+            watcher.on('all', function (event, file) {
+                console.log('%s : %s', event, file.replace(builder.config.src, ''));
+            });
         });
     });
 
