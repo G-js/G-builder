@@ -4,7 +4,8 @@ var async = require('async');
 module.exports = function (callback) {
     var fileInfo = this.file;
     var src = this.config.src;
-    var children = fileInfo.content.split('\n');
+    var children = fileInfo.content.replace('\r', '').split('\n');
+
     fileInfo.deps = fileInfo.deps.concat(children);
     async.map(
         children,
