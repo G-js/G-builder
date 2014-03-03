@@ -12,7 +12,7 @@ function AMDBuilder (callback) {
 AMDBuilder.combine = function (callback) {
     var config = this.config;
     var fileInfo = this.file;
-    fileInfo.deps = fileInfo.content.replace('\r', '').split('\n')
+    fileInfo.deps = fileInfo.content.replace(/\r/g, '').split('\n')
                         .filter(function (file) {
                             return !!file;
                         });
