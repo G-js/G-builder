@@ -1,7 +1,7 @@
 {
   "name": "g-builder",
   "description": "the builder for g.js",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "homepage": "https://github.com/G-js/G-builder",
   "author": {
     "name": "j1anb1n",
