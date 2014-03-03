@@ -17,7 +17,14 @@ function getChildResources (content, src, id) {
             url.indexOf('http') !== 0 &&
             url.replace(/ /g, '') !== 'about:blank'
         ) {
-            url = path.resolve(src, path.dirname(id), url).replace(src, '');
+            url = path.resolve(src, path.dirname(id), url);
+
+            if (url.indexOf(src) !== 0) {
+                break;
+            } else {
+                url = url.replace(src, '');
+            }
+
             if (deps.indexOf(url) === -1) {
                 deps.push(url);
             }
@@ -27,7 +34,7 @@ function getChildResources (content, src, id) {
     return deps;
 }
 
-module.exports = function (callback) {
+function LessBuilder (callback) {
     var fileInfo = this.file;
     var src = this.config.src;
     var config = _.extend({
@@ -41,6 +48,8 @@ module.exports = function (callback) {
         paths: [src, path.dirname(path.resolve(src + fileInfo.id))]
     }, this.config.less);
     var parser = new Parser(config);
+
+    fileInfo.deps = fileInfo.deps.concat(getChildResources(fileInfo.content, src, fileInfo.id));
 
     parser.parse(fileInfo.content, function (err, tree) {
         if (err) {
@@ -56,14 +65,19 @@ module.exports = function (callback) {
 
         try {
             fileInfo.content = tree.toCSS();
-            fileInfo.output[fileInfo.id.replace(/\.less$/, '.css')] = fileInfo.content;
         } catch (ex) {
             fileInfo.warns.push(ex);
             fileInfo.content = '';
         }
 
-        fileInfo.deps = fileInfo.deps.concat(getChildResources(fileInfo.content, src, fileInfo.id));
-
         callback(null);
     });
+}
+
+LessBuilder.writeAsCss = function (callback) {
+    this.file.output[this.file.id.replace(/\.less$/, '.css')] = this.file.content;
+    callback();
 };
+
+
+module.exports = LessBuilder;
