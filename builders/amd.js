@@ -12,7 +12,11 @@ function AMDBuilder (callback) {
 AMDBuilder.combine = function (callback) {
     var config = this.config;
     var fileInfo = this.file;
-    fileInfo.deps = fileInfo.content.split('\n').filter(function (file) {return !!file; });
+    fileInfo.deps = fileInfo.content.replace('\r', '').split('\n')
+                        .filter(function (file) {
+                            return !!file;
+                        });
+
     fileInfo.output[fileInfo.id] = fileInfo.deps
                         .map(function (child) {
                             return transport(child, fs.readFileSync(config.src + child));

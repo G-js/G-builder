@@ -7,7 +7,7 @@ exports.read = function (callback) {
     var fileInfo = this.file;
     fs.readFile(this.config.src + fileInfo.id, function (err, buffer) {
         if (err) {
-            return callback(err);
+            return callback(new Error('cannot open: ' + fileInfo.id));
         }
         fileInfo.content = buffer.toString();
 
