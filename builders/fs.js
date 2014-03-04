@@ -41,7 +41,6 @@ exports.copy = function (callback) {
 exports.write = function (callback) {
     var fileInfo = this.file;
     var config = this.config;
-    var db = this.db;
     if (!fileInfo.output || !Object.keys(fileInfo.output).length) {
         fileInfo.output = {};
         if (fileInfo.content) {
@@ -58,20 +57,7 @@ exports.write = function (callback) {
                 if (err) {
                     return next(err);
                 }
-                fs.writeFile(dest, fileInfo.output[file], function (err) {
-                    if (err) {
-                        return next(err);
-                    }
-                    db.update(
-                        { filename: file },
-                        {
-                            filename: file,
-                            last_update: parseInt(Date.now() / 1000)
-                        },
-                        {upsert: true},
-                        next
-                    );
-                });
+                fs.writeFile(dest, fileInfo.output[file], next);
             });
         },
         function (err) {
