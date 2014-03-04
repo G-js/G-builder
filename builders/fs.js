@@ -44,6 +44,9 @@ exports.write = function (callback) {
     var db = this.db;
     if (!fileInfo.output || !Object.keys(fileInfo.output).length) {
         fileInfo.output = {};
+        if (fileInfo.content) {
+            fileInfo.output[fileInfo.id] = fileInfo.content;
+        }
     }
 
     async.each(

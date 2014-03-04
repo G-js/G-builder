@@ -29,7 +29,7 @@ function CssBuilder (callback) {
 
     fileInfo.deps = deps;
 
-    fileInfo.output[fileInfo.id] = content;
+    fileInfo.content = content;
 
     callback(null);
 }
@@ -37,7 +37,7 @@ function CssBuilder (callback) {
 CssBuilder.minify = function (callback) {
     var cssmin = require('cssmin');
     var fileInfo = this.file;
-    fileInfo.output[fileInfo.id] = cssmin(fileInfo.content);
+    fileInfo.content = cssmin(fileInfo.content);
 
     callback(null);
 };
@@ -73,7 +73,7 @@ CssBuilder.combine = function (callback) {
                 callback(err);
             }
 
-            fileInfo.output[fileInfo.id] = contents.join('\n');
+            fileInfo.content = contents.join('\n');
             fileInfo.deps = deps;
             callback(null);
         }

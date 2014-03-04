@@ -16,7 +16,7 @@ module.exports = function (callback) {
             if (err) {
                 return callback(err);
             }
-            fileInfo.output[fileInfo.id] = buffers.map(function (buf) {
+            fileInfo.content = buffers.map(function (buf) {
                 return buf.toString();
             }).join('\n');
 

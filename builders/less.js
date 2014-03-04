@@ -75,7 +75,10 @@ function LessBuilder (callback) {
 }
 
 LessBuilder.writeAsCss = function (callback) {
-    this.file.output[this.file.id.replace(/\.less$/, '.css')] = this.file.content;
+    if (this.file.content) {
+        this.file.output[this.file.id.replace(/\.less$/, '.css')] = this.file.content;
+    }
+
     callback();
 };
 

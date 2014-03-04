@@ -42,21 +42,24 @@ module.exports = function (grunt) {
 
         builder.build(input, {buildAllFiles: !input.length, buildRelatedFiles: !!input.length}, function (err, report) {
             if (report) {
-                grunt.file.write('reports/' + token, JSON.stringify({
-                    input: report.input,
-                    files: report.files,
-                    output: report.output,
-                    errors: report.errors
-                }, null, 4));
-
                 if (Object.keys(report.errors).length) {
                     Object.keys(report.errors).forEach(function (file) {
                         grunt.log.writelns(report.errors[file]);
                     });
-                    done(false);
-                } else {
-                    done(true);
                 }
+
+                builder.getVersions(function (err, versions) {
+                    report.output.push('g-version.json');
+                    grunt.file.write('reports/' + token, JSON.stringify({
+                        input: report.input,
+                        files: report.files,
+                        output: report.output,
+                        errors: report.errors
+                    }, null, 4));
+                    grunt.file.write(config.dest + '/g-version.json', JSON.stringify(versions, null, 4));
+
+                    done(true);
+                });
             } else {
                 grunt.log.error(err);
                 done(false);
