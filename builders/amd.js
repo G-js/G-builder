@@ -4,7 +4,7 @@ var REQUIRE_RE = /[^.]\s*require\s*\(\s*(["'])([^'"\s\)]+)\1\s*\)/g;
 
 function AMDBuilder (callback) {
     var fileInfo = this.file;
-    fileInfo.output[fileInfo.id] = transport(fileInfo.id, fileInfo.content);
+    fileInfo.content = transport(fileInfo.id, fileInfo.content);
 
     callback(null);
 }
@@ -17,7 +17,7 @@ AMDBuilder.combine = function (callback) {
                             return !!file;
                         });
 
-    fileInfo.output[fileInfo.id] = fileInfo.deps
+    fileInfo.content = fileInfo.deps
                         .map(function (child) {
                             return transport(child, fs.readFileSync(config.src + child));
                         })
