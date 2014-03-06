@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-var REQUIRE_RE = /[^.]\s*require\s*\(\s*(["'])([^'"\s\)]+)\1\s*\)/g;
+var REQUIRE_RE = /[^.]*\s*require\s*\(\s*(["'])([^'"\s\)]+)\1\s*\)/g;
 
 function AMDBuilder (callback) {
     var fileInfo = this.file;
