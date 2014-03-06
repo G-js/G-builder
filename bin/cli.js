@@ -75,8 +75,8 @@ program
                 }
 
                 Object.keys(report.errors).forEach(function (file) {
-                    console.log('Error :%s', file);
-                    console.log(report.errors[file]);
+                    console.log('File :%s', file);
+                    console.log(report.errors[file].stack);
                 });
 
                 if (config.report) {
