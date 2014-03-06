@@ -1,26 +1,21 @@
-var Builder = require('../../lib/build');
+var fs = require('fs');
+
+var cwd = process.cwd();
+var builder;
+
+if (fs.existsSync(cwd + '/Gbuilder.js')) {
+    builder = require(cwd + '/Gbuilder.js');
+} else {
+    throw new Error('Gbuilder.js not found');
+}
 
 module.exports = function (grunt) {
     grunt.registerTask('build', function () {
         var done  = this.async();
-        var config = grunt.config();
-        var builder = new Builder(config);
         var input = [].slice.call(arguments);
         var current = 1;
         var token = grunt.option('token') || Date.now();
         var total;
-
-        config.builder.forEach(function (setting) {
-            var stream = builder.registerBuilder(setting[0]);
-
-            setting[1].forEach(function (fn) {
-                fn = fn.split('#');
-
-                fn = fn[1] ? builder.builder[fn[0]][fn[1]] : builder.builder[fn[0]];
-
-                stream.pipe(fn);
-            });
-        });
 
         builder.on('build', function (file) {
             grunt.log.write('Build:[%d/%d]: %s', current, total, file);
