@@ -20,7 +20,7 @@ AMDBuilder.combine = function (callback) {
 
     fileInfo.content = fileInfo.deps
                         .map(function (child) {
-                            return transport(child, fs.readFileSync(config.src + child));
+                            return transport(child, fs.readFileSync(config.src + child).toString());
                         })
                         .join('\n');
 
