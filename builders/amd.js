@@ -42,7 +42,8 @@ function parseDependencies(code) {
 
 function transport (filename, content) {
     var deps = JSON.stringify(parseDependencies(content));
-    return 'define("' + filename + '", ' + deps + ', function (require, exports, module) {\n' + content + '\n})';
+
+    return 'define("' + filename.replace(/\\/g, '/') + '", ' + deps + ', function (require, exports, module) {\n' + content + '\n})';
 }
 
 module.exports = AMDBuilder;
