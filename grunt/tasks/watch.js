@@ -1,6 +1,6 @@
-var path = require('path');
 var spawn = require('child_process').spawn;
-var Gaze = require('gaze').Gaze;
+var gaze = require('gaze');
+var fs = require('fs');
 
 module.exports = function(grunt) {
     grunt.registerTask('watch', function() {
@@ -8,17 +8,32 @@ module.exports = function(grunt) {
 
         this.async();
 
-        var gaze = new Gaze(src + '/**/*');
-
-        grunt.log.subhead('Watching...');
-
-        gaze.on('all', function (event, filepath) {
-            filepath = filepath.replace(path.resolve(src) + '/', '');
-            grunt.log.writeln('%s: %s', event.toUpperCase(), filepath);
-
-            if (event !== 'deleted') {
-                build(filepath);
+        gaze(src + '/**/*', {mode: 'poll'}, function (err) {
+            if (err) {
+                console.error(err);
+                return;
             }
+            grunt.log.subhead('Watching...');
+
+            // On file changed
+            this.on('changed', function(filepath) {
+                filepath = filepath.replace(src, '');
+
+                build(filepath);
+            });
+
+            // On file added
+            this.on('added', function(filepath) {
+                fs.stat(filepath, function (err, stat) {
+                    if (stat.isFile) {
+                        build(filepath.replace(src, ''));
+                    }
+                });
+            });
+
+            this.on('all', function (event, filepath) {
+                console.log(event, filepath.replace(src, ''));
+            });
         });
 
         function build(file) {
