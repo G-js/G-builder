@@ -1,23 +1,28 @@
 var spawn = require('child_process').spawn;
 var gaze = require('gaze');
 var fs = require('fs');
+var path = require('path');
+var platform = process.platform;
+var pathSplit = '/';
+
+if (platform === 'win32') {
+    pathSplit = '\\';
+}
 
 module.exports = function(grunt) {
     grunt.registerTask('watch', function() {
         var src = grunt.config('src');
-
         this.async();
 
         gaze(src + '/**/*', {mode: 'poll'}, function (err) {
             if (err) {
-                console.error(err);
                 return;
             }
             grunt.log.subhead('Watching...');
 
             // On file changed
             this.on('changed', function(filepath) {
-                filepath = filepath.replace(src, '');
+                filepath = filepath.replace(path.resolve(src) + pathSplit, '');
 
                 build(filepath);
             });
@@ -37,7 +42,14 @@ module.exports = function(grunt) {
         });
 
         function build(file) {
-            var child = spawn('grunt', ['build:' + file]);
+            var cmd = 'grunt';
+
+            if (platform === 'win32') {
+                file = file.replace(/\\/g, '/');
+                cmd = 'grunt.cmd';
+            }
+
+            var child = spawn(cmd, ['build:'+file]);
             var output = '', errorMsg = '';
 
             child.stdout.on('data', function (data) {
