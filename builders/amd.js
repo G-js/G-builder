@@ -30,7 +30,7 @@ AMDBuilder.combine = function (callback) {
 function parseDependencies(code) {
     var ret = [];
 
-    code.replace(SLASH_RE, "")
+    code.replace(SLASH_RE, '')
         .replace(REQUIRE_RE, function(m, m1, m2) {
             if (m2) {
                 ret.push(m2);
@@ -43,7 +43,7 @@ function parseDependencies(code) {
 function transport (filename, content) {
     var deps = JSON.stringify(parseDependencies(content));
 
-    return 'define("' + filename.replace(/\\/g, '/') + '", ' + deps + ', function (require, exports, module) {\n' + content + '\n})';
+    return 'define("' + filename.replace(/\\/g, '/') + '", ' + deps + ', function (require, exports, module) {' + content + '})';
 }
 
 module.exports = AMDBuilder;
