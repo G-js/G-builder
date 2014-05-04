@@ -6,16 +6,14 @@ var platform = process.platform;
 module.exports = function(grunt) {
     grunt.registerTask('watch', function() {
         var src = grunt.config('src');
-
         this.async();
-
         var gaze = new Gaze(src + '/**/*');
 
         grunt.log.subhead('Watching...');
 
         gaze.on('all', function (event, filepath) {
 			var pathSplit = '/';
-			if(platform === 'win32') {
+			if (platform === 'win32') {
 				pathSplit = '\\';
 			}
             filepath = filepath.replace(path.resolve(src) + pathSplit, '');
@@ -29,7 +27,7 @@ module.exports = function(grunt) {
         function build(file) {
 			var cmd = 'grunt';
 			
-			if(platform === 'win32') {
+			if (platform === 'win32') {
 				file = file.replace(/\\/g, '/');
 				cmd = 'grunt.cmd';
 			}
@@ -42,13 +40,11 @@ module.exports = function(grunt) {
             });
 
             child.stderr.on('data', function (data) {
-				console.log(1, data);
                 errorMsg += data;
             });
 
             child.on('exit', function (code) {
                 if (code !== 0) {
-					console.log("error");
                     grunt.log.error(errorMsg || output);
                     return;
                 }
