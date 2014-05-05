@@ -1,7 +1,7 @@
 {
   "name": "g-builder",
   "description": "the builder for g.js",
-  "version": "0.3.18",
+  "version": "0.3.19",
   "homepage": "https://github.com/G-js/G-builder",
   "author": {
     "name": "j1anb1n",
@@ -29,7 +29,7 @@
     "cssmin": "*",
     "uglify-js": ">=2.4.0",
     "async": "*",
-    "gaze": "*",
+    "gaze": "0.5.1",
     "nedb": "~0.8.12",
     "underscore": "~1.5.2",
     "minimatch": "~0.2.14",
