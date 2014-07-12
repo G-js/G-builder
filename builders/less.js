@@ -45,8 +45,12 @@ function LessBuilder (callback) {
         cleancss: false,
         cleancssOptions: {},
         sourceMap: false,
-        paths: [src, path.dirname(path.resolve(src + fileInfo.id))]
+        paths: [src],
+        filename: src + fileInfo.id,
+        relativeUrls: true,
+        rootpath: this.config.server
     }, this.config.less);
+
     var parser = new Parser(config);
 
     fileInfo.deps = fileInfo.deps.concat(getChildResources(fileInfo.content, src, fileInfo.id));
