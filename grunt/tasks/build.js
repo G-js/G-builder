@@ -18,16 +18,18 @@ module.exports = function (grunt) {
         var total;
 
         builder.on('build', function (file) {
-            grunt.log.write('Build:[%d/%d]: %s', current, total, file);
+            grunt.verbose.write('Build:[%d/%d]: %s', current, total, file);
         });
 
-        builder.on('fail', function () {
-            grunt.log.writeln(' ERR'.red);
+        builder.on('fail', function (file) {
+            grunt.log.write('\n');
+            grunt.log.error('ERROR '.red + file);
         });
 
         builder.on('success', function () {
             current++;
-            grunt.log.writeln(' √'.green);
+            grunt.log.write('.'.green);
+            grunt.verbose.writeln(' OK'.green);
         });
 
         builder.on('start', function (files) {
@@ -39,7 +41,7 @@ module.exports = function (grunt) {
             if (report) {
                 if (Object.keys(report.errors).length) {
                     Object.keys(report.errors).forEach(function (file) {
-                        grunt.log.writelns(report.errors[file]);
+                        grunt.log.errorlns(report.errors[file]);
                     });
                 }
 
@@ -50,7 +52,7 @@ module.exports = function (grunt) {
                     errors: report.errors
                 }, null, 4));
 
-                done(true);
+                done(!Object.keys(report.errors).length);
             } else {
                 grunt.log.error(err);
                 done(false);
