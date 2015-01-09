@@ -1,7 +1,7 @@
 {
   "name": "g-builder",
   "description": "the builder for g.js",
-  "version": "0.3.23",
+  "version": "0.3.24",
   "homepage": "https://github.com/G-js/G-builder",
   "author": {
     "name": "j1anb1n",
@@ -36,7 +36,8 @@
     "jshint": "~2.3.0",
     "mkdirp": "~0.3.5",
     "commander": "~2.1.0",
-    "update-notifier": "~0.1.7"
+    "update-notifier": "~0.1.7",
+    "chokidar": "0.12.4"
   },
   "keywords": []
 }

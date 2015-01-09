@@ -5,9 +5,10 @@ var async = require('async');
 
 exports.read = function (callback) {
     var fileInfo = this.file;
+    var srcPath = this.config.src + fileInfo.id;
     fs.readFile(this.config.src + fileInfo.id, function (err, buffer) {
         if (err) {
-            return callback(new Error('cannot open: ' + fileInfo.id));
+            return callback(new Error('cannot open: ' + srcPath));
         }
         fileInfo.content = buffer.toString();
 
