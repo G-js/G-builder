@@ -1,6 +1,5 @@
 var spawn = require('child_process').spawn;
-var gaze = require('gaze');
-var fs = require('fs');
+var chokidar = require('chokidar');
 var path = require('path');
 var platform = process.platform;
 var pathSplit = '/';
@@ -14,42 +13,36 @@ module.exports = function(grunt) {
         var src = grunt.config('src');
         this.async();
 
-        gaze(src + '/**/*', {mode: 'poll'}, function (err) {
-            if (err) {
-                return;
-            }
-            grunt.log.subhead('Watching...');
-
-            // On file changed
-            this.on('changed', function(filepath) {
+        var watcher = chokidar.watch(src, {ignored: /[\/\\]\./, persistent: true});
+        var buffer = [];
+        var timer = null;
+        watcher
+            .on('ready', function () {
+                grunt.log.subhead('Watching...');
+            })
+            .on('change', function(filepath) {
                 filepath = filepath.replace(path.resolve(src) + pathSplit, '');
 
-                build(filepath);
+                buffer.push(filepath);
+                grunt.log.writeln('CHANGED:', filepath);
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    build(buffer);
+                    buffer = [];
+                }, 300);
             });
 
-            // On file added
-            this.on('added', function(filepath) {
-                fs.stat(filepath, function (err, stat) {
-                    if (stat.isFile) {
-                        build(filepath.replace(src, ''));
-                    }
-                });
-            });
-
-            this.on('all', function (event, filepath) {
-                console.log(event, filepath.replace(src, ''));
-            });
-        });
-
-        function build(file) {
+        function build(files) {
             var cmd = 'grunt';
 
             if (platform === 'win32') {
-                file = file.replace(/\\/g, '/');
+                files = files.map(function (file) {
+                    return file.replace(/\\/g, '/');
+                });
                 cmd = 'grunt.cmd';
             }
 
-            var child = spawn(cmd, ['build:'+file]);
+            var child = spawn(cmd, ['build:'+ files.join(':')]);
             var output = '', errorMsg = '';
 
             child.stdout.on('data', function (data) {

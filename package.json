@@ -36,7 +36,8 @@
     "jshint": "~2.3.0",
     "mkdirp": "~0.3.5",
     "commander": "~2.1.0",
-    "update-notifier": "~0.1.7"
+    "update-notifier": "~0.1.7",
+    "chokidar": "0.12.4"
   },
   "keywords": []
 }
