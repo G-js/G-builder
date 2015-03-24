@@ -1,13 +1,13 @@
 var path = require('path');
-var async = require('async');
-var fs = require('fs');
+var cssmin = require('cssmin');
+
+var File = require('../lib/file.js');
+
 var URL_RE = /url\(('|")?(.*?)\1\)/g;
 
-function CssBuilder (callback) {
-    var src = this.config.src;
-    var fileInfo = this.file;
-    var deps = fileInfo.deps || [];
-    var content = fileInfo.content;
+function CssBuilder (file, callback) {
+    var deps = file.deps;
+    var content = file.content;
     var match = null;
     var url = '';
 
@@ -20,64 +20,58 @@ function CssBuilder (callback) {
             url.indexOf('http') !== 0 &&
             url.replace(/ /g, '') !== 'about:blank'
         ) {
-            url = path.resolve(src, path.dirname(fileInfo.id), url).replace(src, '');
+            url = path.resolve('/', path.dirname(file.id), url).replace(/^\//, '');
             if (deps.indexOf(url) === -1) {
                 deps.push(url);
             }
         }
     }
 
-    fileInfo.deps = deps;
+    file.deps = file.deps.concat(deps);
+    file.content = content;
 
-    fileInfo.content = content;
-
-    callback(null);
+    callback(null, file);
 }
 
-CssBuilder.minify = function (callback) {
-    var cssmin = require('cssmin');
-    var fileInfo = this.file;
-    fileInfo.content = cssmin(fileInfo.content);
+CssBuilder.minify = function (file, callback) {
+    try {
+        file.content = cssmin(file.content);
+    } catch (ex) {
+        return callback(ex);
+    }
 
-    callback(null);
+    callback(null, file);
 };
 
-CssBuilder.combine = function (callback) {
-    var src = this.config.src;
-    var fileInfo = this.file;
+CssBuilder.combine = function (file, callback) {
+    var id = file.id;
+    var deps = file.content.split('\n')
+        .filter(function (dep) {
+            return !!dep;
+        })
+        .map(function (dep) {
+            return path.resolve('/', path.dirname(file.id), dep)
+                    .replace(/^\//, '');
+        });
 
-    var deps = fileInfo.content.split('\n')
-                            .filter(function (dep) {
-                                return !!dep;
-                            })
-                            .map(function (dep) {
-                                dep = path.resolve(src, path.dirname(fileInfo.id), dep)
-                                            .replace(src, '');
-
-                                return dep;
-                            });
-
-    async.map(
+    Promise.map(
         deps,
-        function (dep, next) {
-            fs.readFile(src + dep, function (err, content) {
-                if (err) {
-                    next(err);
-                } else {
-                    next(null, fixImgUrl(dep, content.toString()));
-                }
-            });
-        },
-        function (err, contents) {
-            if (err) {
-                callback(err);
-            }
+        function (dep) {
+            dep = new File(dep);
 
-            fileInfo.content = contents.join('\n');
-            fileInfo.deps = deps;
-            callback(null);
+            return dep.read()
+                .then(function (content) {
+                    return fixImgUrl(dep.id, content);
+                });
         }
-    );
+    )
+        .then(function (contents) {
+            file.content = contents.join('\n');
+            file.deps = file.deps.concat(deps);
+
+            callback(null, file);
+        })
+        .caught(callback);
 
     function fixImgUrl (file, content) {
         var url = '';
@@ -90,8 +84,8 @@ CssBuilder.combine = function (callback) {
                 url.indexOf('http') !== 0 &&
                 url.replace(/ /g, '') !== 'about:blank'
             ) {
-                url = path.resolve(src, path.dirname(file), url);
-                url = path.relative(path.dirname(src + fileInfo.id), url);
+                url = path.resolve('/', path.dirname(file), url);
+                url = path.relative(path.dirname('/' + id), url);
             }
 
             return 'url("' + url + '")';

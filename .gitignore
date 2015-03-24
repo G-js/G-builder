@@ -1,5 +1,5 @@
 node_modules
-test/build
+test/dest
 test/data
 test/reports
 test/.gbuild.db

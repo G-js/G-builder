@@ -1,0 +1,6 @@
+@import "susy-2.2.2/susy";
+
+body {
+  @include container;
+  @include show-grid(overlay);
+}
