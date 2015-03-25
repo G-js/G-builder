@@ -5,6 +5,11 @@ var builder = new Gbuilder({
     dest: __dirname + '/dest/'
 });
 
+builder.registerBuilder('**/*.cmb.js')
+    .read()
+    .pipe(Gbuilder.builder.amd.combine)
+    .write();
+
 builder.registerBuilder('**/*.js')
     .read()
     .pipe(Gbuilder.builder.jshint({
@@ -35,7 +40,9 @@ builder.registerBuilder('**/_*.scss', '**/_*.sass')
 builder.registerBuilder('**/*.scss', '**/*.sass')
     .read()
     .pipe(Gbuilder.builder.sass)
-    .write();
+    .write({
+        rewrite: [/sass|scss$/, 'css']
+    });
 
 builder.registerDefaultBuilder(Gbuilder.builder.fs.copy);
 

@@ -7,14 +7,10 @@ module.exports = function (file, callback) {
     sass.render({
         file: file.getAbsolutePath(),
         success: function(result) {
-            console.log('success', result.css);
             file.content = result.css;
             callback(null, file);
         },
-        error: function(error) {
-            console.log(error.message);
-            callback(error);
-        },
+        error: callback,
         importer: function(url, prev) {
             var id, ret, items, realName;
             var basename = path.basename(url);
@@ -31,9 +27,13 @@ module.exports = function (file, callback) {
                 file.addDependences([id]);
                 return ret;
             }
-            console.log('import', url);
+            try {
+                items = fs.readdirSync(path.dirname(url));
+            } catch(ex) {
+                // this may trigger node-sass error in the feature
+                return ret;
+            }
 
-            items = fs.readdirSync(path.dirname(url));
             if (
                 items.indexOf((realName = '_' + basename + '.scss')) !== -1 ||
                 items.indexOf((realName = '_' + basename + '.sass')) !== -1 ||
@@ -42,10 +42,8 @@ module.exports = function (file, callback) {
                 items.indexOf((realName = basename)) !== -1
             ) {
                 file.addDependences(path.dirname(id) + '/' + realName);
-                return ret;
-            } else {
-                throw new Error('file not found', url);
             }
+            return ret;
         },
         outputStyle: 'nested'
     });

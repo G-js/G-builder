@@ -1,16 +1,44 @@
-var builder = require('./Gbuilder.js');
+var Mocha = require('mocha');
+var program = require('commander');
+var glob = require('glob');
+var Promise = require('bluebird');
 
-builder.on('build', function (file) {
-    console.log('build', file.id);
+var mocha = new Mocha({
+    timeout: 30000, // 30 s
+    bail: true
 });
+var specs;
 
-var a = 'style/susy-2.2.2/susy/output/support/_rem.scss';
-var b = 'style/style.scss';
+program.parse(process.argv);
+specs = program.args;
 
-builder.build(function (err, output) {
-    if (err) {
-        console.error(err.stack || err);
-    } else {
-        console.log(output);
+Promise.attempt(function () {
+    if (specs.length) {
+        return specs.map(function (spec) {
+            return 'spec/' + spec + '.js';
+        });
     }
-});
+
+    return new Promise(function (resolve, reject) {
+        glob('spec/*.js', {cwd: __dirname, nodir: true}, function (err, list) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(list);
+            }
+        });
+    });
+})
+    .then(function (specs) {
+        specs.forEach(function (spec) {
+            mocha.addFile(__dirname + '/' + spec);
+        });
+
+        mocha.run(function (err) {
+            process.exit(err ? 1 : 0);
+        });
+    })
+    .caught(function (err) {
+        console.log(err);
+        process.exit(1);
+    });

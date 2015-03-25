@@ -31,6 +31,7 @@
     "commander": "~2.1.0",
     "cssmin": "*",
     "gaze": "0.5.1",
+    "glob": "^5.0.3",
     "jshint": "~2.3.0",
     "less": "1.7.5",
     "minimatch": "~0.2.14",
@@ -41,5 +42,8 @@
     "underscore": "~1.5.2",
     "update-notifier": "~0.1.7"
   },
-  "keywords": []
+  "keywords": [],
+  "devDependencies": {
+    "mocha": "^2.2.1"
+  }
 }
