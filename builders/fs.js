@@ -3,10 +3,7 @@ exports.read = function (file, callback) {
 };
 
 exports.copy = function (file, callback) {
-    file.read()
-        .then(function () {
-            file.write().nodeify(callback);
-        });
+    file.copy().nodeify(callback);
 };
 
 exports.write = function (config) {

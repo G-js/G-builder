@@ -35,7 +35,7 @@ function CssBuilder (file, callback) {
 
 CssBuilder.minify = function (file, callback) {
     try {
-        file.content = cssmin(file.content);
+        file.content = cssmin(file.content || '');
     } catch (ex) {
         return callback(ex);
     }

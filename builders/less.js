@@ -1,5 +1,4 @@
 var Parser = require('less').Parser;
-var _      = require('underscore');
 var path   = require('path');
 
 var URL_RE = /url\(('|")?(.*?)\1\)/g;
@@ -34,10 +33,9 @@ function getChildResources (content, src, id) {
     return deps;
 }
 
-function LessBuilder (callback) {
-    var fileInfo = this.file;
-    var src = this.config.src;
-    var config = _.extend({
+function LessBuilder (file, callback) {
+    var src = file.builder.config.src;
+    var config = {
         silent: true,
         verbose: false,
         ieCompat: true,
@@ -46,31 +44,30 @@ function LessBuilder (callback) {
         cleancssOptions: {},
         sourceMap: false,
         paths: [src],
-        filename: src + fileInfo.id,
+        filename: src + file.id,
         relativeUrls: true,
         rootpath: ''
-    }, this.config.less);
+    };
     var parser = new Parser(config);
 
-    fileInfo.deps = fileInfo.deps.concat(getChildResources(fileInfo.content, src, fileInfo.id));
+    file.addDependences(getChildResources(file.content, src, file.id));
 
-    parser.parse(fileInfo.content, function (err, tree) {
+    parser.parse(file.content, function (err, tree) {
         if (err) {
             return callback(err);
         }
 
         var imports = Object.keys(parser.imports.files)
                         .map(function (file) {
-                            return path.resolve(src, path.dirname(fileInfo.id), file).replace(src, '');
+                            return path.resolve(src, path.dirname(file.id), file).replace(src, '');
                         });
 
-        fileInfo.deps = fileInfo.deps.concat(imports);
+        file.addDependences(imports);
 
         try {
-            fileInfo.content = tree.toCSS();
+            file.content = tree.toCSS();
         } catch (ex) {
-            fileInfo.warns.push(ex);
-            fileInfo.content = '';
+            file.content = '';
         }
 
         callback(null);

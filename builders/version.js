@@ -15,25 +15,24 @@ module.exports = function (file, callback) {
 
     Promise.reduce(
         file.getDependences(),
-        function (file) {
+        function (versions, file) {
             return file.getVersion()
                 .then(function (version) {
                     if (now - version < expire) {
-                        version[file.id] = version;
+                        versions[file.id] = version;
                     }
 
-                    return version;
+                    return versions;
                 });
         },
         {}
     )
         .then(function (version) {
             var config = {version: version};
-
             config.defaultVersion = parseInt(defaultVersion, 10);
             file.content = 'G.config(' + JSON.stringify(config, null, 4) + ');';
 
-            callback(null, file);
+            callback(null);
         })
         .caught(callback);
 };
