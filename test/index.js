@@ -39,6 +39,6 @@ Promise.attempt(function () {
         });
     })
     .caught(function (err) {
-        console.log(err);
+        console.log(err.stack || err);
         process.exit(1);
     });

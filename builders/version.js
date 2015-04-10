@@ -30,8 +30,7 @@ module.exports = function (file, callback) {
         .then(function (version) {
             var config = {version: version};
             config.defaultVersion = parseInt(defaultVersion, 10);
-            file.content = 'G.config(' + JSON.stringify(config, null, 4) + ');';
-
+            file.content = JSON.stringify(config, null, 4);
             callback(null);
         })
         .caught(callback);

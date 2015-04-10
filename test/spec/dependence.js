@@ -9,10 +9,11 @@ describe('dependence', function () {
     });
 
     it('build files', function (done) {
-        builder.build(['spec/dependence/**/*'], function (err, result) {
-            assert(!err, 'build should be ok');
-            done(null);
-        });
+        builder.build(['spec/dependence'])
+            .then(function () {
+                done();
+            })
+            .catch(done);
     });
 
     it('check dependence', function (done) {
@@ -29,5 +30,22 @@ describe('dependence', function () {
                 done();
             })
             .caught(done);
+    });
+
+    it('check minimatch dependence', function (done) {
+        var file = new File('spec/dependence/version.json', builder);
+
+        file.getDependences()
+            .then(function (deps) {
+                deps = deps.map(function (dep) {
+                    return dep.id;
+                }).sort();
+
+                assert.deepEqual(deps, [
+                    'spec/dependence/a.js',
+                    'spec/dependence/b.js',
+                    'spec/dependence/index.cmb.js']);
+            })
+            .nodeify(done);
     });
 });

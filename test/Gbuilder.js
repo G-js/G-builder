@@ -2,7 +2,8 @@ var Gbuilder = require('../index.js');
 
 var builder = new Gbuilder({
     src: __dirname + '/src/',
-    dest: __dirname + '/dest/'
+    dest: __dirname + '/dest/',
+    db: __dirname + '/.gbuild.db'
 });
 
 builder.registerBuilder('**/*.cmb.js')
@@ -19,14 +20,7 @@ builder.registerBuilder('**/*.js')
     .pipe(Gbuilder.builder.uglify)
     .write();
 
-builder.registerBuilder('**/*.tpl')
-    .read()
-    .pipe(Gbuilder.builder.template)
-    .pipe(Gbuilder.builder.amd)
-    .pipe(Gbuilder.builder.uglify)
-    .write();
-
-builder.registerBuilder('**/version.js')
+builder.registerBuilder('**/version.json')
     .read()
     .pipe(Gbuilder.builder.version)
     .write();
