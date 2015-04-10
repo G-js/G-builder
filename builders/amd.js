@@ -1,30 +1,37 @@
-var fs = require('fs');
-var REQUIRE_RE = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*require|(?:^|[^$])\brequire\s*\(\s*(["'])(.+?)\1\s*\)/g;
-var SLASH_RE = /\\\\/g;
+var Promise = require('bluebird');
 var _ = require('underscore');
 
-function AMDBuilder (callback) {
-    var fileInfo = this.file;
-    fileInfo.content = transport(fileInfo.id, fileInfo.content);
+var REQUIRE_RE = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*require|(?:^|[^$])\brequire\s*\(\s*(["'])(.+?)\1\s*\)/g;
+var SLASH_RE = /\\\\/g;
 
-    callback(null);
+function AMDBuilder (file, callback) {
+    file.content = transport(file.id, file.content);
+
+    callback(null, file);
 }
 
-AMDBuilder.combine = function (callback) {
-    var config = this.config;
-    var fileInfo = this.file;
-    fileInfo.deps = fileInfo.content.replace(/\r/g, '').split('\n')
-                        .filter(function (file) {
-                            return !!file;
-                        });
+AMDBuilder.combine = function (file, callback) {
+    var deps = file.content.replace(/\r/g, '').split('\n')
+        .filter(function (file) {
+            return !!file;
+        });
 
-    fileInfo.content = fileInfo.deps
-                        .map(function (child) {
-                            return transport(child, fs.readFileSync(config.src + child).toString());
-                        })
-                        .join('\n');
+    file.addDependences(deps);
 
-    callback(null);
+    Promise.map(
+        file.getDependences(),
+        function (file) {
+            return file.read()
+                .then(function (content) {
+                    return transport(file.id, content);
+                });
+        }
+    )
+        .then(function (contents) {
+            file.content = contents.join('\n');
+            callback(null, file);
+        })
+        .caught(callback);
 };
 
 function parseDependencies(code) {
@@ -43,7 +50,7 @@ function parseDependencies(code) {
 function transport (filename, content) {
     var deps = JSON.stringify(parseDependencies(content));
 
-    return 'define("' + filename.replace(/\\/g, '/') + '", ' + deps + ', function (require, exports, module) {' + content + '});';
+    return 'define("' + filename.replace(/\\/g, '/') + '", ' + deps + ', function (require, exports, module) {\n' + content + '\n});';
 }
 
 module.exports = AMDBuilder;

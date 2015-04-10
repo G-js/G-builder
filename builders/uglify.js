@@ -1,13 +1,11 @@
 var UglifyJS = require('uglify-js');
 
-module.exports = function (callback) {
-    var fileInfo = this.file;
-
+module.exports = function (file, callback) {
     try {
-        fileInfo.content = UglifyJS.minify(fileInfo.content, {fromString: true}).code;
+        file.content = UglifyJS.minify(file.content, {fromString: true}).code;
     } catch (ex) {
-        return callback(new Error('[Uglifyjs]: ' + ex.message + '[line:' + ex.line + ', column:' + ex.col + ']'));
+        return callback(ex);
     }
 
-    callback(null);
+    callback(null, file);
 };
