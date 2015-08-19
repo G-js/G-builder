@@ -1,6 +1,6 @@
 var path = require('path');
 var cssmin = require('cssmin');
-
+var Promise = require('bluebird');
 var File = require('../lib/file.js');
 
 var URL_RE = /url\(('|")?(.*?)\1\)/g;
@@ -27,7 +27,7 @@ function CssBuilder (file, callback) {
         }
     }
 
-    file.deps = file.deps.concat(deps);
+    file.addDependences(deps);
     file.content = content;
 
     callback(null, file);
@@ -45,11 +45,16 @@ CssBuilder.minify = function (file, callback) {
 
 CssBuilder.combine = function (file, callback) {
     var id = file.id;
+    var builder = file.builder;
     var deps = file.content.split('\n')
         .filter(function (dep) {
             return !!dep;
         })
         .map(function (dep) {
+            if (dep[0] !== '.') {
+                dep = '/' + dep;
+            }
+
             return path.resolve('/', path.dirname(file.id), dep)
                     .replace(/^\//, '');
         });
@@ -57,7 +62,7 @@ CssBuilder.combine = function (file, callback) {
     Promise.map(
         deps,
         function (dep) {
-            dep = new File(dep);
+            dep = new File(dep, builder);
 
             return dep.read()
                 .then(function (content) {
@@ -67,7 +72,7 @@ CssBuilder.combine = function (file, callback) {
     )
         .then(function (contents) {
             file.content = contents.join('\n');
-            file.deps = file.deps.concat(deps);
+            file.addDependences(deps);
 
             callback(null, file);
         })
@@ -88,7 +93,7 @@ CssBuilder.combine = function (file, callback) {
                 url = path.relative(path.dirname('/' + id), url);
             }
 
-            return 'url("' + url + '")';
+            return 'url(' + url + ')';
         });
 
         return content;
