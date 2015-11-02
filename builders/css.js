@@ -46,7 +46,7 @@ CssBuilder.minify = function (file, callback) {
 CssBuilder.combine = function (file, callback) {
     var id = file.id;
     var builder = file.builder;
-    var deps = file.content.split('\n')
+    var deps = file.content.replace(/\r/g, '').split('\n')
         .filter(function (dep) {
             return !!dep;
         })
@@ -54,9 +54,8 @@ CssBuilder.combine = function (file, callback) {
             if (dep[0] !== '.') {
                 dep = '/' + dep;
             }
-
             return path.resolve('/', path.dirname(file.id), dep)
-                    .replace(/^\//, '');
+                    .replace(process.platform === 'win32' ? path.resolve('/') : /^\//, '');
         });
 
     Promise.map(
